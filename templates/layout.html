@@ -1,0 +1,48 @@
+<!doctype html>
+
+<html lang="de" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- CSS -->
+        <link href="/static/css/bootstrap.css" rel="stylesheet"> 
+        <link href="/static/css/styles.css" rel="stylesheet">
+
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+    <body class=>
+        <nav class="navbar sticky-top bg-body-tertiary">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1 fst-italic" style="color: #3bab82;">M.A.D.</span>
+                <div class="d-flex">
+                    <a href="/" class="btn btn-dark me-1 home_tt">
+                        <img src="/static/images/home.png"  alt="Home" width="25" height="25">
+                    </a>
+                    <a href="/simplex" class="btn btn-dark me-1 simplex_tt">
+                        <img src="/static/images/owl.png"  alt="Simplex" width="25" height="25">
+                    </a>
+                    <a href="/fabelzier" class="btn btn-dark me-1 fabelzier_tt">
+                        <img src="/static/images/fabel.png"  alt="Fabelzier" width="25" height="25">
+                    </a>
+                    <a href="/geierlamm" class="btn btn-dark me-1 geierlamm_tt">
+                        <img src="/static/images/geier.png"  alt="Geierlamm" width="25" height="25">
+                    </a>
+                    <a href="/customers" class="btn btn-dark me-1 customer_tt">
+                        <img src="/static/images/customer.png"  alt="Customers" width="25" height="25">
+                    </a>
+                    <a href="/settings" class="btn btn-dark settings_tt">
+                        <img src="/static/images/gear.png"  alt="Settings" width="25" hight="25">
+                    </a>
+                </div>
+            </div>
+        </nav>
+        <main>
+            {% block main %} {% endblock %}
+        </main>
+        <script src="/static/js/bootstrap.bundle.js"></script>
+        <script src="/static/js/popper.min.js"></script>
+        <script src="/static/js/tippy-bundle.umd.js"></script>
+        <script src="/static/js/layout_tt.js"></script>
+        {% block script %} {% endblock %}
+    </body>
+</html>

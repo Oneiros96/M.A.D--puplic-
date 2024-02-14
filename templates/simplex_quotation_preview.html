@@ -1,0 +1,332 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Simplex Angebots Vorschau
+{% endblock %}
+
+{% block main %}
+<div class="container text-center mb-5">
+    <h3> 
+        <span class="badge"  style="background-color: #3bab82;">
+            Simplex Angebots Vorschau
+        </span>
+    </h3>
+    <!-- customer -->
+    <div class="row">
+        <div class="col-2">
+            <p>Kunde</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col-1">
+                    <p>Name</p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_name" value="{{ customer['name'] }}">
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <p>
+                       Straße 
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="street" value="{{ customer['street'] }}">
+                </div>
+                <div class="col-1">
+                    <p>
+                       Nr. 
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="street_nr" value="{{ customer['street_nr']}}">
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <p>
+                        PLZ.
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="postal_code" value="{{ customer['postal_code'] }}">
+                </div>
+                <div class="col-1">
+                    <p>
+                      Stadt  
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="city" value="{{ customer['city'] }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- project data -->
+    <div class="row">
+        <div class="col-2">
+            Projekt Daten
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="project_name" placeholder="Projektname" value="{{ project_data['project_name'] }}">
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="project_theme" placeholder="Thema" value="{{ project_data['project_theme'] }}">
+                    
+                </div>
+                <div class="col-2 text-center">
+                    <p>Projekttage</p>
+                </div>
+                <div class="col-2">
+                    <input type="number" steps="1" class="form-control text-center" id="days" name="days" value="{{ project_data['days'] }}"
+                    onchange="calculate_staff_costs()">
+                </div>
+            </div>
+            <div class="row pt-1">
+                <div class="col-2 text-start">
+                    <p>Teilnehmer</p>
+                </div>
+                <div class="col">
+                    <input type="number" steps="1" class="form-control text-center" name="participants" id="participants" value="{{ project_data['participants'] }}" 
+                    onchange="calculate_projects_and_project_day_total(), calculate_base_cost_pp()">
+                </div>
+                <div class="col-3 text-center">
+                    <p>Kunden Personal</p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_staff" placeholder="0-X" value="{{ project_data['customer_staff'] }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2">
+                    <p class="pt-1 text-start">Gültigkeitsdauer</p>
+                </div>
+                <div class="col-3">
+                    <input type="number" class="form-control text-center" name="validity_period" value="{{ project_data['validity_period'] }}">
+                </div>
+                <div class="col-2">
+                    <p class="pt-1 ">Tage</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- base costs-->
+    <div class="row">
+        <div class="col-2">
+            <p>Grundkosten</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <input type="number" step="1" class="form-control text-center" id="rides" name="rides" value="{{ base_costs['rides'] }}"
+                    onchange="calculate_travel_costs()">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>Fahrten à</p>
+                </div>
+                <div class="col">
+                    <input type="number" step="1" class="form-control text-center" id="distance" name="distance" value="{{ base_costs['distance'] }}"
+                    onchange="calculate_travel_costs()">
+                </div>
+                <div class="col-1 pt-1">
+                    <p class="text-start">km</p>
+                </div>
+                <div class="col">
+                    <input type="number" step=".01" class="form-control text-center" id="price_km" name="price_km" value="{{ base_costs['price_km'] }}"
+                    onchange="calculate_travel_costs()">
+                </div>
+                <div class="col-1 pt-1">
+                    <p class="">€/km</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <input type="number" step="1" class="form-control text-center" id="staff" name="staff" value="{{ base_costs['staff'] }}"
+                    onchange="calculate_staff_costs()">
+                </div>
+                <div class="col-3 pt-1">
+                    <p>Animateur(e)</p>
+                </div>
+                <div class="col">
+                    <input type="number" step=".01" class="form-control text-center" id="price_day" name="price_day" value="{{ base_costs['price_day'] }}"
+                    onchange="calculate_staff_costs()">
+                </div>
+                <div class="col-1 pt-1">
+                    <p class="">€/Tag</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2 pt-1">
+                    <p class="text-start">Auf- und Abbau</p>
+                </div>
+                <div class="col-2">
+                    <input type="number" step=".01" class="form-control text-center" id="assembly_fee" name="assembly_fee" value="{{ base_costs['assembly_fee'] }}"
+                    onchange="calculate_base_cost()">
+                </div>
+                <div class="col-1 text-start">
+                    <p class="pt-1">€</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1 pt-1 text-start">
+                    <p>Reisekosten</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="travel_costs" name="travel_costs" value="{{ base_costs.travel_costs}}">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>Personalkosten</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="staff_costs" name="staff_costs" value="{{ base_costs.staff_costs}}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-2 pt-1 text-start">
+                    <p>Netto Preis</p>
+                </div>
+                <div class="col-2">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="base_costs_total_netto" name="total_netto" value="{{ base_costs['total_netto'] }}">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>MwSt.</p>
+                </div>
+                <div class="col-2">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="vat" name="vat" value="{{ base_costs['vat'] }}">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>Grundkosten gesamt</p>
+                </div>
+                <div class="col-2">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="base_costs_total" name="base_costs_total" value="{{ base_costs.total_brutto}}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-8"></div>
+                <div class="col-2">
+                    <p>
+                        Grundkosten je Teilnehmer
+                    </p>
+                </div>
+                <div class="col-2">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="base_cost_total_pp" name="per_participant" value="{{ base_costs['per_participant'] }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- total cost -->
+    <div class="row">
+        <div class="col-2">
+            <p>
+                Gesamtkosten
+            </p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col-2">
+                    <p>Gesamtpreis</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps=".01" class="form-control text-center" id="total_cost" value="{{ total_cost}}">
+                </div>
+                <div class="col">
+                    <p>Gesamtpreis je Teilnehmer</p>
+                </div>
+                <div class="col">
+                    <input diabled type="number" steps=".01" class="form-control text-center" id="total_cost_pp" value="{{ total_cost_pp }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- project_days -->
+    <div class="row">
+        <div class="col-2">
+            <p>Projekttage</p>
+        </div>
+        <div class="col">
+            {% for project_day in project_days.project_days %}
+            <div name="project_day">
+                <div class="row">
+                    <div class="col-2">
+                        <p>Projektname</p>
+                    </div>
+                    <div class="col-4">
+                        <input class="form-control text-center" name="project_name" value="{{ project_day['name'] }}">
+                    </div>
+                    <div class="col">
+                        <p>Preis</p>
+                    </div>
+                    <div class="col">
+                        <input disabled class="form-control text-center" name="project_cost" value="{{ project_day['cost'] }}">
+                    </div>
+                    <div class="col">
+                        <p>Preis je Teilnehmer</p>
+                    </div>
+                    <div class="col">
+                        <input disabled class="form-control text-center" name="project_cost_pp" value="{{ project_day['cost_pp'] }}">
+                    </div>
+                </div>
+                {% for offer in project_day["offers"] %}
+                <div name="offer">
+                    <div class="row mt-3">
+                        <div class="col-2"></div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col-4">
+                                    <input class="form-control text-center" name="name" value="{{ offer['name'] }}">
+                                </div>
+                                <div class="col">
+                                    <p>Preis</p>
+                                </div>
+                                <div class="col">
+                                    <input disabled class="form-control text-center" name="price_total" value="{{ offer['price_total'] }}">
+                                </div>
+                                <div class="col">
+                                    <p>Preis je Teilnehmer</p>
+                                </div>
+                                <div class="col">
+                                    <input type="number" steps=".01" class="form-control text-center" name="price_brutto" value="{{ offer['price_brutto'] }}"
+                                    onchange="calculate_offer_total_on_pp_change(this)">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <textarea class="form-control text-center" name="description" >{{ offer['description'] }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor%}
+            <hr>
+            <br>
+            </div>   
+            {% endfor%}    
+        </div>
+    </div>
+</div>
+<div class="right-bottom row p-2">
+    <div class="col p-0">
+        <form method="post" action="/simplex/render_quotation">
+            <input type="hidden" name="data" id="data">
+            <button class="btn btn-dark create_quotation_tt" type="submit" onclick="get_offer_data(), pop_post_data()">
+                <img src="/static/images/quotation.png" height="25" width="25" alt="create qoutation">
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/pop_post_data.js"></script>
+<script src="/static/js/adjust_textarea_size.js"></script>
+<script src="/static/js/create_quotation_tt.js"></script>
+<script src="/static/js/simplex_quotation_preview.js"></script>
+{% endblock %}

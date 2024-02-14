@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Customers
+{% endblock %}
+
+{% block main %}
+<div class="container text-center">
+    <div class="row pt-2 pb-2">
+        <div class="col"></div>
+        <div class="col-6">
+            <input type="search" class="form-control text-center" oninput="search(this)" placeholder="Suche">
+        </div>
+        <div class="col"></div>
+    </div>
+    <div class="row">
+        <h3> 
+            <span class="badge mt-2"  style="background-color: #3bab82;">
+                Kundendaten
+            </span>
+        </h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Straße</th>
+                    <th>Nr.</th>
+                    <th>PLZ</th>
+                    <th>Stadt</th>
+                </tr>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr class="search">
+                        <td>
+                            <input type="text" class="form-control text-center" name="name" value="{{ customer['name'] }}" onchange="mark_as_edited(this, {{ customer['customer_id'] }})">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control text-center" name="street" value="{{ customer['street'] }}" onchange="mark_as_edited(this, {{ customer['customer_id'] }})">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control text-center" name="street_nr" value="{{ customer['street_nr'] }}" onchange="mark_as_edited(this, {{ customer['customer_id'] }})">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control text-center" name="postal_code" value="{{ customer['postal_code'] }}" onchange="mark_as_edited(this, {{ customer['customer_id'] }})">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control text-center" name="city" value="{{ customer['city'] }}" onchange="mark_as_edited(this, {{ customer['customer_id'] }})">
+                        </td>
+                        <td>
+                            <form action="/delete_customer" method="post">
+                                <input hidden name="customer_id" value="{{ customer['customer_id']}}">
+                                <button class="btn btn-dark delete_tt">
+                                    <img src="/static/images/trash_can.png" width="25" height="25" alt="delete offer">
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </thead>
+        </table>
+        <div class="text-end">
+            <button class="btn btn-dark me-3 new_row_tt" onclick="add_new_row()">
+                <img src="/static/images/plus.png" width="25" height="25" alt="new line">
+            </button>
+        </div>
+    </div>
+</div>
+<div>
+    <form method="post" action="/customers">
+        <input type="hidden" name="updates" id="updates">
+        <button class="btn btn-dark right-bottom save_tt" type="submit" onclick="update_all()">
+            <img src="static/images/save.png" width="25" height="25" alt="save changes"></img>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+// change bg-color of edited table cells and store changed values to edited_data variable
+let edited_data = {};
+    function mark_as_edited(element, customer_id) {
+        element.classList.add('edited');
+        const field_name = element.getAttribute('name');
+        const field_value = element.value;
+        edited_data[customer_id] = { ...edited_data[customer_id], [field_name]: field_value };
+    }
+//save all
+function update_all() {
+            const edited_rows = Object.entries(edited_data).map(([customer_id, data]) => ({ customer_id, ...data }));
+            const edited_data_input = document.getElementById('updates');
+            edited_data_input.value = JSON.stringify(edited_rows);
+    }
+//New Line
+//in use offer id's
+let customer_ids = [{% for customer in customers %}{{ customer["customer_id"] }},{% endfor %}];
+    
+    //searches for lowest unused offer id and returns it / appends it to offer_id's 
+    function generate_new_customer_id(customer_ids) {
+        let new_customer_id = 1;
+        while (customer_ids.includes(new_customer_id)) {
+            new_customer_id++;
+        }
+
+        customer_ids.push(new_customer_id);
+        return new_customer_id;
+    }
+
+    function add_new_row(table_id) {
+        console.log(table_id)
+        var table_body = document.querySelector("table tbody");
+        var new_row = table_body.insertRow();
+        
+        // Modify the ID of the new row
+        var new_customer_id = generate_new_customer_id(customer_ids);
+
+        new_row.innerHTML = '<td>' +
+                        '<input type="text" class="form-control text-center" name="name" value="" onchange="mark_as_edited(this, ' + new_customer_id + ')">' +
+                    '</td>'+
+                    '<td>' +
+                        '<input type="text" class="form-control text-center" name="street" value="" onchange="mark_as_edited(this, ' + new_customer_id + ')">' +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="text" class="form-control text-center" name="street_nr" value="" onchange="mark_as_edited(this, ' + new_customer_id + ')">' +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="number" class="form-control text-center" name="postal_code" value="" onchange="mark_as_edited(this, ' + new_customer_id + ')">' +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="text" class="form-control text-center" name="city" value="" onchange="mark_as_edited(this, ' + new_customer_id + ')">' +
+                    '<td>' +
+                        '<form action="/delete_customer" method="post">' +
+                            '<input hidden name="customer_id" value="' + new_customer_id + '">' +
+                            '<button class="btn btn-dark">' +
+                                '<img src="/static/images/trash_can.png" width="25" height="25" alt="delete offer">' +
+                            '</button>' +
+                        '</form>' +
+                    '</td>'
+    }
+
+const search_element = document.querySelectorAll(".search")
+
+function search(e) {
+    search_input = e.value.toLocaleLowerCase()
+
+    search_element.forEach(element => {
+        const element_name = element.querySelector("[name='name']").value.toLocaleLowerCase()
+        const visible = element_name.includes(search_input)
+
+        element.classList.toggle("hide", !visible)
+    })
+}
+
+tippy(".save_tt", {
+        content: "Speichern",
+        arrow: true,
+    })
+    tippy(".new_row_tt", {
+        content: "Neuer Eintrag",
+        arrow: true,
+        placement: "bottom",
+    })
+    tippy(".delete_tt", {
+        content: "Eintrag löschen",
+        arrow: true,
+        placement: "bottom",
+    })
+</script>
+{% endblock %}

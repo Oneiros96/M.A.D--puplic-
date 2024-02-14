@@ -1,0 +1,239 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Database
+{% endblock %}
+
+{% block main %}
+<div class="container text-center">
+    <div class="row pt-2">
+        <div class="col col-md-4">
+            <h2 class="mb-0">
+                <span class="badge" style="background-color: #3bab82;">
+                    Tabellen:
+                </span>
+            </h2>
+        </div>
+    {% for table in tables %}
+        <div class="col col-md-7">
+            <form method="post" action="/update_table_name">
+                <div class="row">
+                    <div class="col col-md-11">
+                        <input type="hidden" name="table_id" value="{{ table['table_id']}}">
+                        {% if table['table_id'] in [1, 2, 3] %}
+                            <input type="text" class="form-control text-center" name="table_name" value="{{ table['name'] }}" disabled>
+                        {% else %}
+                            <input type="text" class="form-control text-center" name="table_name" value="{{ table['name'] }}">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-1">
+                        {% if table['table_id'] not in [1, 2, 3] %}
+                            <button type="submit" class="btn btn-dark save_tt">
+                                <img src="/static/images/checkmark.png" alt="change table name" width="25" height="25">
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn btn-dark" disabled>
+                                <img src="/static/images/checkmark.png" alt="change table name" width="25" height="25">
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col col-md-1">
+            {% if table['table_id'] not in [1, 2, 3] %}
+                <form method="post" action="/delete_table">
+                    <input type="hidden" name="table_id" value="{{ table['table_id']}}">
+                    <button type="submit" class="btn btn-dark delete_table_tt" >
+                        <img src="/static/images/trash_can.png" width="25" height="25" alt="delete table">
+                    </button>
+                </form>
+            {% else %}
+                <form>
+                    <button type="button" class="btn btn-dark" disabled>
+                        <img src="/static/images/trash_can.png" width="25" height="25" alt="delete table">
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col-md-4"></div>
+    {% endfor %}
+    </div>
+
+
+    <form method="post" action="/new_table">
+        <div class="row pt-2">
+            <div class="col col-md-4"></div>
+            <div class="col col-md-7">
+                <div class="row">
+                    <div class="col col-md-11">
+                        <input type="text" class="form-control text-center" name="new_table_name">
+                    </div>
+                    <div class="col col-md-1">
+                        <button type="submit" class="btn btn-dark new_table_tt">
+                            <img src="/static/images/plus.png" alt="add table" width="25" height="25">
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col col-md-1"></div>
+        </div>
+    </form>
+    <br>
+<!-- simplex quotations -->
+    <div class="row pt-2">
+        <div class="col col-md-4">
+            <h2>
+                <span class="badge" style="background-color: #3bab82;">
+                    Simplex Angebote:
+                </span>
+            </h2>
+        </div>
+
+        {% for simplex_quotation in simplex_quotations %}
+        <div class="col col-md-7">
+            <form method="post" action="/update_simplex_quotation">
+                <div class="row">
+                    <div class="col col-md-11">
+                        <input type="hidden" name="id" value="{{ simplex_quotation['id']}}">
+                        <input type="text" class="form-control text-center" name="name" value="{{ simplex_quotation['name'] }}">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-dark save_tt">
+                            <img src="/static/images/checkmark.png" alt="change table name" width="25" height="25">
+                        </button>
+                    </div>
+                </div>
+                    
+            </form>
+        </div>
+        <div class="col col-md-1">
+            <form method="post" action="/delete_simplex_quotation">
+                <input type="hidden" name="id" value="{{ simplex_quotation['id']}}">
+                <button type="submit" class="btn btn-dark delete_quotation_tt">
+                    <img src="/static/images/trash_can.png" width="25" height="25" alt="delete table">
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col"></div>
+    {% endfor %}
+    </div>
+
+
+    <!-- fabelzier quotations-->
+    <div class="row pt-2">
+        <div class="col col-md-4">
+            <h2>
+                <span class="badge" style="background-color: #3bab82;">
+                    Fabelzier Angebote:
+                </span>
+            </h2>
+        </div>
+
+        {% for fabelzier_quotation in fabelzier_quotations %}
+        <div class="col col-md-7">
+            <form method="post" action="/update_fabelzier_quotation">
+                <div class="row">
+                    <div class="col col-md-11">
+                        <input type="hidden" name="id" value="{{ fabelzier_quotation['id']}}">
+                        <input type="text" class="form-control text-center" name="name" value="{{ fabelzier_quotation['name'] }}">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-dark save_tt">
+                            <img src="/static/images/checkmark.png" alt="change table name" width="25" height="25">
+                        </button>
+                    </div>
+                </div>
+                    
+            </form>
+        </div>
+        <div class="col col-md-1">
+            <form method="post" action="/delete_fabelzier_quotation">
+                <input type="hidden" name="id" value="{{ fabelzier_quotation['id']}}">
+                <button type="submit" class="btn btn-dark delete_quotation_tt" >
+                    <img src="/static/images/trash_can.png" width="25" height="25" alt="delete table">
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col"></div>
+    {% endfor %}
+    </div>
+
+    <!-- geierlamm quotations-->
+    <div class="row pt-2">
+        <div class="col col-md-4">
+            <h2>
+                <span class="badge" style="background-color: #3bab82;">
+                    Geierlamm Angebote:
+                </span>
+            </h2>
+        </div>
+
+        {% for geierlamm_quotation in geierlamm_quotations %}
+        <div class="col col-md-7">
+            <form method="post" action="/update_geierlamm_quotation">
+                <div class="row">
+                    <div class="col col-md-11">
+                        <input type="hidden" name="id" value="{{ geierlamm_quotation['id']}}">
+                        <input type="text" class="form-control text-center" name="name" value="{{ geierlamm_quotation['name'] }}">
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-dark save_tt">
+                            <img src="/static/images/checkmark.png" alt="change table name" width="25" height="25">
+                        </button>
+                    </div>
+                </div>
+                    
+            </form>
+        </div>
+        <div class="col col-md-1">
+            <form method="post" action="/delete_geierlamm_quotation">
+                <input type="hidden" name="id" value="{{ geierlamm_quotation['id']}}">
+                <button type="submit" class="btn btn-dark delete_quotation_tt" >
+                    <img src="/static/images/trash_can.png" width="25" height="25" alt="delete table">
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col"></div>
+    {% endfor %}
+    </div>
+
+
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+tippy(".save_tt", {
+    content: "Speichern",
+    arrow: true,
+    placement: "bottom",
+})
+tippy(".new_table_tt", {
+    content: "Neue Tabelle",
+    arrow: true,
+    placement: "bottom",
+})
+tippy(".delete_table_tt", {
+    content: "Tabelle löschen",
+    arrow: true,
+    placement: "bottom",
+})
+tippy(".delete_quotation_tt", {
+    content: "Angebot löschen",
+    arrow: true,
+    placement: "bottom",
+})
+
+</script>
+{% endblock %}

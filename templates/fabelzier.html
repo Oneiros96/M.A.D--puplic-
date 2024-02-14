@@ -1,0 +1,385 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Fabelzier
+{% endblock %}
+
+{% block main %}
+<div class="container text-center mb-5">
+    <br>
+    <!-- save/load quotations-->
+    <div class="row mb-2">
+        <div class="col"></div>
+        <div class="col-2 p-0">
+                <input list="saved_quotations" class="form-control text-center" id="quotation_name" autocomplete="off">
+                <datalist id="saved_quotations">
+                    {% for save in save_names %}
+                    <option value="{{ save['name'] }}" data-id="{{ save['id'] }}"></option>
+                    {% endfor %}
+                </datalist>
+        </div>
+        <div class="col p-0">
+            <div class="d-flex ps-1">
+                <form action="/fabelzier/load_quotation" method="get">
+                    <input type="hidden" id="quotation_id" name="quotation_id">
+                    <button class="btn btn-dark load_quotation_tt"> 
+                        <img src="/static/images/cd.png" width="25" height="25"  alt="load quotation">
+                    </button>
+                </form>
+                <button class="btn btn-dark save_quotation_tt" onclick="get_offer_data(), save_fabelzier_quotation()">
+                    <img src="/static/images/save.png" height="25" width="25" alt="save qouatation data">
+                </button>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
+    
+    <!-- main content -->
+    <div class="row">
+        <!-- offer table -->
+        <div class="col-4 " style="overflow-y: scroll; height: 80vh;">
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-6">
+                    <input type="search" class="form-control text-center" oninput="search(this)" placeholder="Suche">
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="row mt-1">
+                <h3> 
+                    <span class="badge"  style="background-color: #3bab82;">
+                        Fabelzier
+                    </span>
+                </h3>
+                <table class="table table-bordered mb-1">
+                    <tbody>
+                    {% if fabelzier_offers %}   
+                    {% for offer in fabelzier_offers %}
+                        <tr class="draggable search" draggable="true">
+                            <td hidden name="offer_id">{{ offer["offer_id"]}}</td>
+                            <td name="name">{{ offer["name"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <h3> 
+                    <span class="badge"  style="background-color: #3bab82;">
+                        Spiele
+                    </span>
+                </h3>
+                <table class="table table-bordered mb-1">
+                    <tbody>
+                    {% if games %}   
+                    {% for offer in games %}
+                        <tr class="draggable search" draggable="true">
+                            <td hidden name="offer_id">{{ offer["offer_id"]}}</td>
+                            <td name="name">{{ offer["name"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <h3> 
+                    <span class="badge"  style="background-color: #3bab82;">
+                        Große Handwerke
+                    </span>
+                </h3>
+                <table class="table table-bordered mb-1">
+                    <tbody>
+                    {% if big_crafts %}   
+                    {% for offer in big_crafts %}
+                        <tr class="draggable search" draggable="true">
+                            <td hidden name="offer_id">{{ offer["offer_id"]}}</td>
+                            <td name="name">{{ offer["name"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- quotation creator -->
+        <div class="col-8" style="overflow-y: auto; height: 80vh;">
+            <!-- customer -->
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div class="col-2 text-end">
+                            <p>Kunde</p>
+                        </div>
+                        <div class="col">
+                            <input list="existing_customers" type="text" class="form-control text-center" name="customer_name" id="customer_name" placeholder="Name" 
+                            {% if quotation_data %} value="{{ quotation_data.customer['name'] }}" {% endif %}>
+
+                            <datalist id="existing_customers">
+                                {% for customer in customers %}
+                                <option value="{{ customer['name'] }}"></option>
+                                {% endfor %}
+                            </datalist>
+
+                            <div class="row mt-1">
+                                <div class="col-8">
+                                    <input type="text" class="form-control text-center" id="customer_street" name="customer_street" placeholder="Straße"
+                                    {% if quotation_data %} value="{{ quotation_data.customer['street'] }}" {% endif %}>
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control text-center" id="street_nr" name="street_nr" placeholder="Nr."
+                                    {% if quotation_data %} value="{{ quotation_data.customer['street_nr'] }}" {% endif %}>
+                                </div>
+                            </div>
+                            <div class="row mt-1">
+                                <div class="col-5">
+                                    <input type="text" class="form-control text-center" id="postal_code" name="postal_code" placeholder="PLZ."
+                                    {% if quotation_data %} value="{{ quotation_data.customer['postal_code'] }}" {% endif %}>
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control text-center" id="city" name="city" placeholder="Stadt"
+                                    {% if quotation_data %} value="{{ quotation_data.customer['city'] }}" {% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- project data -->
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div class="col-2 text-end">
+                            <p>Projekt Daten</p>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" class="form-control text-center" id="project_name" name="project_name" placeholder="Projektname"
+                                    {% if quotation_data %} value="{{ quotation_data.project_data['project_name'] }}" {% endif %}>
+                                </div>
+                                <div class="col">
+                                    <p>Tage</p>
+                                </div>
+                                <div class="col-2">
+                                    <input type="number" steps="1" class="form-control text-center" name="days" 
+                                    {% if quotation_data %} value="{{ quotation_data.project_data['days'] }}" {% else %} value="1" {% endif %}
+                                    onchange="spawn_despawn_times(this)">
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col-3">
+                                    <p class="text-start">Gültigkeitsdauer</p>
+                                </div>
+                                <div class="col-3">
+                                    <input type="number" class="form-control text-center" name="validity_period" 
+                                    {% if quotation_data %} value="{{ quotation_data.project_data['validity_period'] }}" {% else %} value="14" {% endif %}>
+                                </div>
+                                <div class="col-2">
+                                    <p class="text-center">Tage</p>
+                                </div>
+                            </div>
+                            {% if quotation_data %}
+                            {% for time in quotation_data.project_data['times'] %}
+                            <div class="row pt-1" name="times">
+                                <div class="col">
+                                    <input type="date" name="date" class="form-control text-center" value="{{ time['date'] }}">
+                                </div>
+                                <div class="col">
+                                    <p>von</p>
+                                </div>
+                                <div class="col">
+                                    <input type="time" name="start_time" class="form-control text-center" value="{{ time['start'] }}">
+                                </div>
+                                <div class="col">
+                                    <p>bis</p>
+                                </div>
+                                <div class="col">
+                                    <input type="time" name="end_time" class="form-control text-center" value="{{ time['end'] }}">
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="row pt-1" name="times">
+                                <div class="col">
+                                    <input type="date" name="date" class="form-control text-center">
+                                </div>
+                                <div class="col">
+                                    <p>von</p>
+                                </div>
+                                <div class="col">
+                                    <input type="time" name="start_time" class="form-control text-center">
+                                </div>
+                                <div class="col">
+                                    <p>bis</p>
+                                </div>
+                                <div class="col">
+                                    <input type="time" name="end_time" class="form-control text-center">
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>    
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- base costs-->
+            <div class="row">
+                <div class="col-2 text-end">
+                    <p>Grundkosten</p>
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <input type="number" step="1" class="form-control text-center" name="rides" 
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['rides'] }}" {% else %} value="2" {% endif %}>
+                        </div>
+                        <div class="col-2 pt-1">
+                            <p>Fahrten à</p>
+                        </div>
+                        <div class="col">
+                            <input type="number" step="1" class="form-control text-center" name="distance"
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['distance'] }}" {% else %} value="0" {% endif %}>
+                        </div>
+                        <div class="col-1 pt-1">
+                            <p class="text-start">km</p>
+                        </div>
+                        <div class="col">
+                            <input type="number" step=".01" class="form-control text-center" name="price_km" 
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['price_km'] }}" {% else %}value="{{ prices[0]['price_brutto'] }}" {% endif %}>
+                        </div>
+                        <div class="col-1 pt-1">
+                            <p class="">€/km</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <input type="number" step="1" class="form-control text-center" name="staff"
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['staff'] }}" {% else %} value="1" {% endif %}>
+                        </div>
+                        <div class="col-3 pt-1">
+                            <p>Mitarbeiter</p>
+                        </div>
+                        <div class="col">
+                            <input type="number" step=".01" class="form-control text-center" name="price_day" 
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['price_day'] }}" {% else %} value="{{ prices[1]['price_brutto'] }}" {% endif %}>
+                        </div>
+                        <div class="col-1 pt-1">
+                            <p class="">€/Tag</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3 pt-1">
+                            <p class="text-start">Auf- und Abbau</p>
+                        </div>
+                        <div class="col">
+                            <input type="number" step=".01" class="form-control text-center" name="assembly_fee" 
+                            {% if quotation_data %} value="{{ quotation_data.base_costs['assembly_fee'] }}" {% else %} value="{{ prices[2]['price_brutto'] }}"{% endif %}>
+                        </div>
+                        <div class="col-1">
+                            <p class="pt-1">€</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- offers -->
+            <div class="row">
+                <div class="col-2 text-end">
+                    <p>Angebote</p>
+                </div>
+                <div class="col text-center">
+                    <div class="row">
+                        <table class="">
+                            <thead>
+                                <th class="col">
+                                    Einzel-Angebote
+                                </th>
+                                <th class="col-1">
+
+                                </th>
+                            </thead>
+                            <tbody id="offers">
+                                <tr>
+                                    <td><p></p></td>
+                                    <td></td>
+                                </tr>
+                                {% if quotation_data %}
+                                {% for offer in quotation_data.offers %}
+                                <tr>
+                                    <td hidden name="offer_id">{{ offer["id"] }}</td>
+                                    <td name="name">{{ offer["name"] }}</td>
+                                    <td>
+                                        <button class="btn btn-dark delete_offer_tt" onclick="delete_offer(this)">
+                                            <img src="/static/images/trash_can.png" height="25" width="25" alt="delete offer">
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br>
+                    <!-- offer_bundel -->
+                    <div class="row">
+                        <table class="">
+                            <thead>
+                                <th class="col">
+                                    Angebots-Paket
+                                </th>
+                                <th class="col-1">
+
+                                </th>
+                            </thead>
+                            <tbody id="offer_bundle">
+                                <tr>
+                                    <td><p></p></td>
+                                    <td></td>
+                                </tr>
+                                {% if quotation_data %}
+                                {% for offer in quotation_data.offer_bundle %}
+                                <tr>
+                                    <td hidden name="offer_bundle_id">{{ offer["id"] }}</td>
+                                    <td name="name">{{ offer["name"] }}</td>
+                                    <td>
+                                        <button class="btn btn-dark delete_offer_tt" onclick="delete_offer_bundle(this)">
+                                            <img src="/static/images/trash_can.png" height="25" width="25" alt="delete offer bundle">
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>     
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="right-bottom row p-2">
+    <div class="col p-0">
+        <form method="post" action="/fabelzier/quotation_preview">
+            <input type="hidden" name="data" id="data">
+            <button class="btn btn-dark quotation_preview_tt" type="submit" onclick="get_offer_data(), pop_post_data()">
+                <img src="/static/images/quotation.png" height="25" width="25" alt="create qoutation">
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/drag_offers.js"></script>
+<script src="/static/js/load_customer_adress.js"></script>
+<script src="/static/js/times.js"></script>
+<script src="/static/js/get_nth_parent.js"></script>
+<script src="/static/js/delete_offer.js"></script>
+<script src="/static/js/load_quotation_eventlistener.js"></script>
+<script src="/static/js/pop_post_data.js"></script>
+<script src="/static/js/search.js"></script>
+<script src="/static/js/quotation_preview_tt.js"></script>
+<script src="/static/js/load_save_quotation_tt.js"></script>
+<script src="/static/js/fabelzier.js"></script>
+{% endblock %}

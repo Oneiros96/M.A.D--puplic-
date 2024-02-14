@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Database
+{% endblock %}
+
+{% block main %}
+<div class="container text-center mb-5">
+    <div class="row pt-2 pb-2">
+        <div class="col"></div>
+        <div class="col-6">
+            <input type="search" class="form-control text-center" oninput="search(this)" placeholder="Suche">
+        </div>
+        <div class="col"></div>
+    </div>
+    {% for table in tables %}
+    <div class="row">
+    <!-- add simplex badge befor the related tables -->
+        {% if loop.index == 3%}
+        <br>
+        <h3>
+            <span class="badge"  style="background-color: #AB3B64;">Simplex Callidus</span>
+        </h3>
+        {% endif %}
+        <br>
+        <h3> 
+            <span class="badge"  {% if loop.index <= 2 %} style="background-color: #AB3B64;" {% else %} style="background-color: #3bab82;" {% endif %}>
+                {{ table['name'] }}
+            </span>
+        </h3>
+        <table class="table table-bordered mb-1" id="table_{{ table['table_id'] }}">
+            <thead>
+                <tr class="row">
+                    <th class="col-2">Angebot</th>
+                    <th class="col-1">Nettopreis</th>
+                    <th class="col-1">MwSt.</th>
+                    <th class="col-1">Bruttopreis</th>
+                    <th class="col">Anmerkungen</th>
+                    <th class="col-1"></th>   
+                </tr>
+            </thead>
+            <tbody>   
+        {% for data in data %}
+        {% if data['table_id'] == table['table_id'] %}
+                <tr class="row search">
+                    <td class="col-2">
+                        <input type="text" class="form-control text-center" name="name" value="{{ data['name'] }}" onchange="mark_as_edited(this, {{ data['offer_id'] }})">
+                    </td>
+                    <td class="col-1">
+                        <input type="number" step=".01" class="form-control text-center" name="price_netto" value="{{ data['price_netto'] }}" id="price_netto_{{ data['offer_id'] }}"
+                        onchange="mark_as_edited(this, {{ data['offer_id'] }}), calculate_brutto(this, document.getElementById('vat_rate_{{ data["offer_id"] }}'), {{ data['offer_id'] }})">
+                    </td>
+                    <td class="col-1">
+                        <select class="form-select text-center" name="vat_rate" id="vat_rate_{{ data['offer_id'] }}" 
+                        onchange="mark_as_edited(this, {{ data['offer_id'] }}), calculate_netto(document.getElementById('price_brutto_{{ data["offer_id"] }}'), this, {{ data['offer_id'] }})" >
+                            <option selected hidden>{{ data['vat_rate'] }}</option>
+                            <option>0%</option>
+                            <option>7%</option>
+                            <option>19%</option>
+                        </select>
+                    </td>
+                    <td class="col-1">
+                        <input type="number" step=".01" class="form-control text-center" name="price_brutto" value="{{ data['price_brutto'] }}" id="price_brutto_{{ data['offer_id']}}" 
+                        onchange="mark_as_edited(this, {{ data['offer_id'] }}), calculate_netto(this, document.getElementById('vat_rate_{{ data["offer_id"] }}'), {{ data['offer_id'] }})">
+                    </td>
+                    <td class="col">
+                        <textarea class="form-control text-center" name="description" onchange="mark_as_edited(this, {{ data['offer_id'] }})" oninput="adjust_textarea_size(this)">{{ data['description'] }}</textarea>
+                    </td>
+                    <td class="col-1">
+                        <form action="/delete_offer" method="post">
+                            <input hidden name="offer_id" value="{{ data['offer_id']}}">
+                            <button class="btn btn-dark delete_tt">
+                                <img src="/static/images/trash_can.png" width="25" height="25" alt="delete offer">
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+        {% endif %}
+        {% endfor %}
+            </tbody>
+        </table>
+        <div class="text-end row">
+            <div class="col"></div>
+            <button class="btn btn-dark col-1 new_row_tt" onclick="add_new_row('{{ table["table_id"] }}')">
+
+                <img src="/static/images/plus.png" width="25" height="25" alt="new line">
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div>
+    <form method="post" action="/update_all">
+        <input type="hidden" name="updates" id="updates">
+        <button class="btn btn-dark right-bottom save_tt" type="submit" onclick="update_all()">
+            <img src="static/images/save.png" width="25" height="25" alt="save changes"></img>
+        </button>
+    </form>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/adjust_textarea_size.js"></script>
+
+<script>
+    tippy(".save_tt", {
+        content: "Speichern",
+        arrow: true,
+    })
+    tippy(".new_row_tt", {
+        content: "Neuer Eintrag",
+        arrow: true,
+        placement: "bottom",
+    })
+    tippy(".delete_tt", {
+        content: "Eintrag löschen",
+        arrow: true,
+        placement: "bottom",
+    })
+// make description fields correct sizes when site loads
+    window.onload = function() {
+        let description_elements = document.querySelectorAll("textarea");
+        for (let element of description_elements) {
+            adjust_textarea_size(element);
+        }
+    };
+    
+// change bg-color of edited table cells and store changed values to edited_data variable
+    let edited_data = {};
+    function mark_as_edited(element, offer_id) {
+        element.classList.add("edited");
+        const field_name = element.getAttribute("name");
+        const field_value = element.value;
+        edited_data[offer_id] = { ...edited_data[offer_id], [field_name]: field_value };
+    }
+//save all
+    function update_all() {
+            const edited_rows = Object.entries(edited_data).map(([offer_id, data]) => ({ offer_id, ...data }));
+            const edited_data_input = document.getElementById("updates");
+            edited_data_input.value = JSON.stringify(edited_rows);
+    }
+//Brutto/Netto calculation
+    function calculate_brutto(price_netto, vat_rate, offer_id) {
+        var price_netto = parseFloat(price_netto.value);
+        var vat_rate = parseFloat(vat_rate.value);
+        var price_brutto = price_netto * (1+ (vat_rate / 100));
+        output_field_name = "price_brutto_" + offer_id;
+        document.getElementById(output_field_name).value = price_brutto.toFixed(2);
+        mark_as_edited(document.getElementById(output_field_name), offer_id);
+    }
+
+    function calculate_netto(price_brutto, vat_rate, offer_id) {
+        var price_brutto = parseFloat(price_brutto.value);
+        var vat_rate = parseFloat(vat_rate.value);
+
+        var price_netto = (price_brutto * 100) / (100 + vat_rate);
+        output_field_name = "price_netto_" + offer_id;
+
+        document.getElementById(output_field_name).value = price_netto.toFixed(2);
+        mark_as_edited(document.getElementById(output_field_name), offer_id)
+    }
+
+//New Line
+//in use offer id's
+let offer_ids = [{% for data in data %}{{ data["offer_id"] }},{% endfor %}];
+    
+    //searches for lowest unused offer id and returns it / appends it to offer_id's 
+    function generate_new_offer_id(offer_ids) {
+        let new_offer_id = 1;
+        while (offer_ids.includes(new_offer_id)) {
+            new_offer_id++;
+        }
+
+        offer_ids.push(new_offer_id);
+        return new_offer_id;
+    }
+
+    function add_new_row(table_id) {
+        console.log(table_id)
+        var table_body = document.querySelector("#table_" + table_id + " tbody");
+        var new_row = table_body.insertRow();
+        new_row.classList.add("row");
+        
+        // Modify the ID of the new row
+        var new_offer_id = generate_new_offer_id(offer_ids);
+        edited_data[new_offer_id] = { ...edited_data[new_offer_id], ["table_id"]: table_id};
+
+        new_row.innerHTML =    '<td class="col-2">' +
+                                '<input type="text" class="form-control text-center" name="name" value="" onchange="mark_as_edited(this, ' + new_offer_id +')">\n' +
+                            '</td>\n' +
+                            '<td class="col-1">\n' +
+                                '<input type="number" step=".01" class="form-control text-center" name="price_netto" value="0.00" id="price_netto_' + new_offer_id +'"\n' +
+                                'onchange="mark_as_edited(this, ' + new_offer_id + '), calculate_brutto(this, document.getElementById(\'vat_rate_' + new_offer_id + '\'), ' + new_offer_id + ')">\n'+
+                            '</td>\n' +
+                            '<td class="col-1">\n' +
+                                '<select class="form-select text-center" name="vat_rate" id="vat_rate_' + new_offer_id + '"\n'+
+                                'onchange="mark_as_edited(this, ' + new_offer_id + '), calculate_brutto(document.getElementById(\'price_netto_' + new_offer_id +'\'), this, ' + new_offer_id + ')" >\n' +
+                                    '<option> 0%</option>\n' +
+                                    '<option selected >7%</option>\n' +
+                                    '<option>19%</option>\n' +
+                                '</select>\n' +
+                            '</td>\n' +
+                            '<td class="col-1">\n' +
+                                '<input type="number" step=".01" class="form-control text-center" name="price_brutto" value="0.00" id="price_brutto_' + new_offer_id + '" \n' +
+                                'onchange="mark_as_edited(this, ' + new_offer_id  + '), calculate_netto(this, document.getElementById(\'vat_rate_' + new_offer_id + '\'), ' + new_offer_id +')">\n' +
+                            '</td>\n' +
+                            '<td class="col">\n' +
+                                '<textarea class="form-control text-center" name="description" value="" onchange="mark_as_edited(this, ' + new_offer_id + ')"></textarea>\n' +
+                            '</td>\n' +
+                            '<td class="col-1">\n' +
+                                '<form action="/delete_offer" method="post">\n' +
+                                    '<input hidden name="offer_id" value="' + new_offer_id +'">\n' +
+                                    '<button class="btn btn-dark delete_tt">\n' +
+                                        '<img src="/static/images/trash_can.png" width="25" height="25" alt="delete offer">\n' +
+                                    '</button>\n' +
+                                '</form>\n' +
+                            '</td>\n' +
+                        '<tr>\n';
+        
+        tippy(new_row.querySelector(".delete_tt"), {
+            content: "Eintrag löschen",
+            arrow: true,
+            placement: "bottom",
+        })
+    }
+
+//search 
+const search_element = document.querySelectorAll(".search")
+
+function search(e) {
+    search_input = e.value.toLocaleLowerCase()
+
+    search_element.forEach(element => {
+        const element_name = element.querySelector("[name='name']").value.toLocaleLowerCase()
+        const visible = element_name.includes(search_input)
+
+        element.classList.toggle("hide", !visible)
+    })
+}
+</script>
+{% endblock %}

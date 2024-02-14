@@ -1,0 +1,349 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Geierlamm Angebots Vorschau
+{% endblock %}
+
+{% block main %}
+<div class="container text-center mb-5">
+    <h3> 
+        <span class="badge"  style="background-color: #3bab82;">
+            Geierlamm Angebots Vorschau
+        </span>
+    </h3>
+    <!-- customer -->
+    <div class="row">
+        <div class="col-2">
+            <p>Kunde</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col-1">
+                    <p>Name</p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_name" value="{{ customer['name'] }}">
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <p>
+                       Straße 
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_street" value="{{ customer['street'] }}">
+                </div>
+                <div class="col-1">
+                    <p>
+                       Nr. 
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_street_nr" value="{{ customer['street_nr']}}">
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-1">
+                    <p>
+                        PLZ.
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_postal_code" value="{{ customer['postal_code'] }}">
+                </div>
+                <div class="col-1">
+                    <p>
+                      Stadt  
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="customer_city" value="{{ customer['city'] }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-2">
+            <p>
+                Projekt Daten
+            </p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col-2 text-start">
+                    <p>
+                      Projektname  
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="project_name" value="{{ project_data['project_name'] }}">
+                </div>
+                <div class="col-2">
+                    <p>
+                      Veranstaltungsdauer  
+                    </p>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control text-center" steps="1" id="days" name="days" value="{{ project_data['days'] }}"
+                    oninput="spawn_despawn_times(this)">
+                </div>
+                <div class="col text-start">
+                    <p>Tage</p>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col-2 text-start">
+                    <p>Gültigkeitsdauer</p>
+                </div>
+                <div class="col-2">
+                    <input type="number" class="form-control text-center" steps="1" name="validity_period" value="{{ project_data['validity_period'] }}">
+                </div>
+                <div class="col text-start">
+                    <p>Tage</p>
+                </div>
+            </div>
+            {% for time in project_data["times"] %}
+            <div class="row mt-1" name="times">
+                <div class="col">
+                    <input type="date" class="form-control text-center" name="date" value="{{ time['date'] }}">
+                </div>
+                <div class="col">
+                    <p>von</p>
+                </div>
+                <div class="col">
+                    <input type="time" class="form-control text-center" name="start" value="{{ time['start'] }}">
+                </div>
+                <div class="col">
+                    <p>bis</p>
+                </div>
+                <div class="col">
+                    <input type="time" class="form-control text-center" name="end" value="{{ time['end'] }}">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <br>
+    <!-- base costs-->
+    <div class="row">
+        <div class="col-2">
+            <p>Grundkosten</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <input type="number" step="1" class="form-control text-center" id="rides" name="rides" value="{{ base_costs.rides }}" 
+                    oninput="calculate_travel_costs()">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>Fahrten à</p>
+                </div>
+                <div class="col">
+                    <input type="number" step="1" class="form-control text-center" id="distance" name="distance" value="{{ base_costs.distance }}" 
+                    oninput="calculate_travel_costs()">
+                </div>
+                <div class="col-1 pt-1">
+                    <p class="text-start">km</p>
+                </div>
+                <div class="col">
+                    <input type="number" step=".01" class="form-control text-center" id="price_km" name="price_km" value="{{ base_costs.price_km }}" 
+                    oninput="calculate_travel_costs()">
+                </div>
+                <div class="col-1 pt-1">
+                    <p class="">€/km</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1 pt-1 text-start">
+                    <p>Reisekosten</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" id="travel_costs" name="travel_costs" value="{{ base_costs.travel_costs}}">
+                </div>
+                <div class="col-3 pt-1">
+                    <p class="">Auf- und Abbau</p>
+                </div>
+                <div class="col">
+                    <input type="number" step=".01" class="form-control text-center" id="assembly_fee" name="assembly_fee" value="{{ base_costs.assembly_fee }}"
+                    oninput="calculate_base_costs()">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <p>Grundkosten Netto</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" id="base_costs_total_netto" name="base_costs_total_netto" value="{{ base_costs.total_netto}}">
+                </div>
+                <div class="col">
+                    <p>MwSt. in %</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="1" class="form-control text-center" id="base_costs_vat_rate" name="base_costs_vat_rate" value="{{ base_costs.vat_rate}}">
+                </div>
+                <div class="col">
+                    <p>MwSt. in €</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="1" class="form-control text-center" id="base_costs_vat" name="base_costs_vat" value="{{ base_costs.vat}}">
+                </div>
+                <div class="col-2 pt-1">
+                    <p>Grundkosten gesamt</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" id="base_costs_total" name="base_costs_total" value="{{ base_costs.total_brutto}}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- offers -->
+    <div class="row"> 
+        <div class="col-2">
+            <p>Angebote</p>
+        </div>
+        <div class="col">
+            {% for offer in offers %}
+            <div name="offer">
+                <div class="row">
+                    <div class="col-6">
+                        <input type="text" class="form-control text-center" name="name" value="{{ offer['name'] }}">
+                    </div>
+                    <div class="col">
+                        <p>Preis Brutto</p>
+                    </div>
+                    <div class="col">
+                        <input type="number" steps="0.01" class="form-control text-center" name="price" value="{{ offer['price_brutto']}}"
+                        oninput="calculate_offer_on_price_change(this)">
+                    </div>
+                    <div class="col">
+                        <p>Gesamtpreis</p>
+                    </div>
+                    <div class="col">
+                        <input disabled type="number" steps="0.01" class="form-control text-center" name="price_total" value="{{ offer['price_total'] }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p>Preis Netto</p>
+                    </div>
+                    <div class="col">
+                        <input disabled type="number" steps="0.01" class="form-control text-center" name="price_netto" value="{{ offer['price_netto'] }}">
+                    </div>
+                    <div class="col">
+                        <p>MwSt in %</p>
+                    </div>
+                    <div class="col">
+                        <input disabled type="number" steps="1" class="form-control text-center" name="vat_rate" value="{{ offer['vat_rate'] }}">
+                    </div>
+                    <div class="col">
+                        <p>MwSt. in €</p>
+                    </div>
+                    <div class="col">
+                        <input disabled type="number" steps="0.01" class="form-control text-center" name="vat" value="{{ offer['vat'] }}">
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col">
+                        <textarea class="form-control" name="description" onchange="adjust_textarea_size()">{{ offer['description'] }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <br>
+            {% endfor %}
+        </div>
+    </div>
+    <!-- offer_bundle-->
+    <div class="row">
+        <div class="col-2">
+            <p>Combi Angebot</p>
+        </div>
+        <div class="col">
+            <div class="row">
+                <div class="col">
+                    <input type="text" class="form-control text-center" name="offer_bundle_name" value="{{ offer_bundle['name'] }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <p>Preis Netto</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" name="offer_bundle_price_netto" id="offer_bundle_price_netto" name="price_netto" value="{{ offer_bundle['price_netto']}}"
+                    onchange="">
+                </div>
+                <div class="col">
+                    <p>Rabatt</p>
+                </div>
+                <div class="col">
+                    <input type="number" class="form-control text-center" id ="discount" name="discount" value="0"
+                    onchange="calculate_bundle_on_discount_change()">
+                </div>
+                <div class="col-1 text-start">
+                    <p>%</p>
+                </div>
+            </div>        
+            <div class="row mt-1">
+                <div class="col">
+                    <p>MwSt. 7%</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" name="offer_bundle_vat7" id="offer_bundle_vat7" name="vat7" value="{{ offer_bundle['vat7']}}"
+                    onchange="">
+                </div>
+                <div class="col">
+                    <p>MwSt. 19%</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" name="offer_bundle_vat19" id="offer_bundle_vat19" name="vat19" value="{{ offer_bundle['vat19']}}"
+                    onchange="">
+                </div>
+                <div class="col-1"></div>
+            </div>
+            <div class="row mt-1">             
+                <div class="col">
+                    <p>Preis Brutto</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" name="offer_bundle_price_brutto" id="offer_bundle_price_brutto" name="price_brutto" value="{{ offer_bundle['price_brutto']}}"
+                    onchange="">
+                </div>
+                <div class="col">
+                    <p>Gesamtpreis</p>
+                </div>
+                <div class="col">
+                    <input disabled type="number" steps="0.01" class="form-control text-center" name="offer_bundle_price_total" id="offer_bundle_price_total" name="price_total" value="{{ offer_bundle['price_total'] }}">
+                </div>
+                <div class="col-1"></div>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <textarea class="form-control" name="offer_bundle_description" onchange="adjust_textarea_size()"></textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="right-bottom row p-2">
+    <div class="col p-0">
+        <form method="post" action="/geierlamm/render_quotation">
+            <input type="hidden" name="data" id="data">
+            <button class="btn btn-dark create_quotation_tt" type="submit" onclick="get_offer_data(), pop_post_data()">
+                <img src="/static/images/quotation.png" height="25" width="25" alt="create qoutation">
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/times.js"></script>
+<script src="/static/js/geierlamm_quotation_preview.js"></script>
+<script src="/static/js/pop_post_data.js"></script>
+<script src="/static/js/create_quotation_tt.js"></script>
+<script src="/static/js/adjust_textarea_size.js"></script>
+{% endblock %}
