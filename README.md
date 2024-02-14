@@ -51,12 +51,12 @@ M.A.D is a tool for managing services and customer addresses of three companies 
 ## Project Description
 
 ### Database
-On the database page, services with prices, value-added tax rates, and descriptions can be created, edited, and deleted. There is a table provided for each company, "Fabelzier" and "Geierlamm," while tables for "Simplex Callidus" can be created and named as desired under settings. The "other" table contains basic prices necessary for creating offers.
+On the database page, services with prices, value-added tax rates, and descriptions can be created, edited, and deleted. There is a table provided for each company, "Fabelzier" and "Geierlamm," while tables for "Simplex Callidus" can be created and named as desired under settings. The "Sontiges" table contains basic prices necessary for creating offers.
 Before deleting individual entries or leaving the database page, all changes should be saved, as they will otherwise be lost.
 
 ### Offer Creation
 Clicking on the buttons of the respective company takes you to the form for creating offers, where customer and project data can be entered, and services from the database can be dragged and dropped into the form. 
-Clicking on the offer preview button at the bottom right takes you to the preview of the offer to be created. 
+Clicking on the offer preview button at the bottom right takes you to the preview of the offer to be created, where project data and prices can be adjusted.  
 To save an offer as a (company-specific) template, enter a name in the field next to the save and load buttons and then click on save. 
 Clicking on the name field selects and loads existing templates. 
 To modify an existing template, select it again in the name field and click on save.
