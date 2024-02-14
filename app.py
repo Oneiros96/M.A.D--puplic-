@@ -274,5 +274,5 @@ def delete_geierlamm_quotation():
    return redirect("/settings")
 
 if __name__ == "__main__":
-   app.run(debug=True)
-   #webview.start()
+   #app.run(debug=True)
+   webview.start()
