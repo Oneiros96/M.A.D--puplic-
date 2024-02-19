@@ -271,4 +271,4 @@ def delete_geierlamm_quotation():
 
 if __name__ == "__main__":
    #app.run(debug=True)
-   webview.start()
+   webview.start(debug=True)
