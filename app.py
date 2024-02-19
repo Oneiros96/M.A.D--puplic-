@@ -91,8 +91,8 @@ def simplex_render_data():
 ###########
 @app.get("/fabelzier")
 def fabelzier():
-   fabelzier_offers, games, big_crafts, customers, prices, save_names = fabelzier_render_data()
-   return render_template("fabelzier.html", fabelzier_offers = fabelzier_offers, games = games, big_crafts = big_crafts, customers = customers, prices = prices, save_names = save_names)
+   fabelzier_offers, customers, prices, save_names = fabelzier_render_data()
+   return render_template("fabelzier.html", fabelzier_offers = fabelzier_offers, customers = customers, prices = prices, save_names = save_names)
 
 @app.post("/fabelzier/save_quotation")
 def save_fabelzier_qoutation():
@@ -110,8 +110,8 @@ def fabelzier_load_quoataion():
    if not quotation_id:
       return redirect("/fabelzier")
    quotation_data = json.loads(db.execute("SELECT data FROM fabelzier_quotations WHERE id = ?", (quotation_id,))[0]["data"])
-   fabelzier_offers, games, big_crafts, customers, prices, save_names = fabelzier_render_data()
-   return render_template("fabelzier.html", quotation_data = quotation_data, fabelzier_offers = fabelzier_offers, games = games, big_crafts = big_crafts, customers = customers, prices = prices, save_names = save_names)
+   fabelzier_offers, customers, prices, save_names = fabelzier_render_data()
+   return render_template("fabelzier.html", quotation_data = quotation_data, fabelzier_offers = fabelzier_offers, customers = customers, prices = prices, save_names = save_names)
 
 @app.post("/fabelzier/quotation_preview/")
 def fabelzier_quotation_preview():
@@ -128,20 +128,18 @@ def fabelzier_render_quotation():
 
 def fabelzier_render_data():
    fabelzier_offers = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 1")
-   games = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 8")
-   big_crafts = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 7")
    customers = db.execute("SELECT name FROM customers ORDER BY name")
    prices = db.execute("SELECT price_brutto FROM offers WHERE offer_id <= 3")
    save_names = db.execute("SELECT id, name FROM fabelzier_quotations ORDER BY name")
-   return fabelzier_offers, games, big_crafts, customers, prices, save_names
+   return fabelzier_offers, customers, prices, save_names
 
 ###########
 #Geierlamm#
 ###########
 @app.get("/geierlamm")
 def geierlamm():
-   offers, games, big_crafts, customers, prices, save_names = geierlamm_render_data()
-   return render_template("geierlamm.html", offers = offers, games = games, big_crafts = big_crafts, customers = customers, prices = prices, save_names = save_names)
+   offers, customers, prices, save_names = geierlamm_render_data()
+   return render_template("geierlamm.html", offers = offers, customers = customers, prices = prices, save_names = save_names)
 
 @app.post("/geierlamm/save_quotation")
 def save_geierlamm_qoutation():
@@ -159,8 +157,8 @@ def geierlamm_load_quotation():
    if not quotation_id:
       return redirect("/geierlamm")
    quotation_data = json.loads(db.execute("SELECT data FROM geierlamm_quotations WHERE id = ?", (quotation_id,))[0]["data"])
-   offers, games, big_crafts, customers, prices, save_names = geierlamm_render_data()
-   return render_template("geierlamm.html", quotation_data = quotation_data, games = games, big_crafts = big_crafts, offers = offers, customers = customers, prices = prices, save_names = save_names)
+   offers, customers, prices, save_names = geierlamm_render_data()
+   return render_template("geierlamm.html", quotation_data = quotation_data, offers = offers, customers = customers, prices = prices, save_names = save_names)
 
 @app.post("/geierlamm/quotation_preview/")
 def geierlamm_quotation_preview():
@@ -177,12 +175,10 @@ def geierlamm_render_quotation():
 
 def geierlamm_render_data():
    offers = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 2")
-   games = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 8")
-   big_crafts = db.execute("SELECT name, offer_id FROM offers WHERE table_id = 7")
    customers = db.execute("SELECT name FROM customers ORDER BY name")
    prices = db.execute("SELECT price_brutto FROM offers WHERE offer_id <= 3")
    save_names = db.execute("SELECT id, name FROM geierlamm_quotations ORDER BY name")
-   return offers, games, big_crafts, customers, prices, save_names
+   return offers, customers, prices, save_names
 
 
 ###########
